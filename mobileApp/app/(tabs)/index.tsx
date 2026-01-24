@@ -62,3 +62,52 @@ export default function HomeScreen() {
     }
   }
 
+  return (
+    <View style={{ flex: 1, backgroundColor: '#fff', padding: 16, marginTop:50 }}>
+      <Text style={{ fontSize: 24, textAlign: 'center', marginBottom: 10, color: '#000' }}>
+        Injection Tracker
+      </Text>
+
+      <View style={{ marginBottom: 10 }}>
+        <Button title="Select first resupply" onPress={() => setShowPicker('resupply')} />
+      </View>
+      <View style={{ marginBottom: 10 }}>
+        <Button title="Select first injection" onPress={() => setShowPicker('injection')} />
+      </View>
+
+      {showPicker && (
+        <DateTimePicker
+          value={
+            showPicker === 'resupply'
+              ? firstResupply ?? new Date()
+              : firstInjection ?? new Date()
+          }
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={onDateChange}
+        />
+      )}
+
+      <View style={{ marginTop: 20 }}>
+        <Calendar markedDates={markedDates} />
+      </View>
+
+      {/* Legend */}
+      <View style={{ flexDirection: 'column', justifyContent: 'center', marginTop: 20 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 10 }}>
+          <View
+            style={{ width: 12, height: 12, backgroundColor: 'red', borderRadius: 6, marginRight: 5 }}
+          />
+          <Text>Injection</Text>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 10 }}>
+          <View
+            style={{ width: 12, height: 12, backgroundColor: 'green', borderRadius: 6, marginRight: 5 }}
+          />
+          <Text>Resupply</Text>
+        </View>
+      </View>
+    </View>
+  )
+}
