@@ -23,3 +23,21 @@ export type StoredScheduleItem = {
   type: 'injection' | 'resupply'
   done?: boolean
 }
+
+// Add an injection/resupply to this month (for Explore page)
+export const addInjectionToMonth = async (item: Omit<ScheduleItem, 'id'>) => {
+  const stored = await AsyncStorage.getItem(STORAGE_KEYS.MONTH_SCHEDULE)
+  const existing: StoredScheduleItem[] = stored ? JSON.parse(stored) : []
+
+  const entry: StoredScheduleItem = {
+    id: nanoid(),
+    date: item.date.toISOString(),
+    type: item.type,
+  }
+
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.MONTH_SCHEDULE,
+    JSON.stringify([entry, ...existing])
+  )
+}
+
