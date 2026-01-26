@@ -41,3 +41,21 @@ export const addInjectionToMonth = async (item: Omit<ScheduleItem, 'id'>) => {
   )
 }
 
+// Add injection/resupply to history log
+export const addInjectionToLog = async (item: Omit<ScheduleItem, 'id'>) => {
+  const stored = await AsyncStorage.getItem(STORAGE_KEYS.INJECTION_LOG)
+  const existing: StoredScheduleItem[] = stored ? JSON.parse(stored) : []
+
+  const entry: StoredScheduleItem = {
+    id: nanoid(),
+    date: item.date.toISOString(),
+    type: item.type,
+    done: true,
+  }
+
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.INJECTION_LOG,
+    JSON.stringify([entry, ...existing])
+  )
+}
+
