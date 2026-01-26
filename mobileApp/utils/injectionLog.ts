@@ -59,3 +59,20 @@ export const addInjectionToLog = async (item: Omit<ScheduleItem, 'id'>) => {
   )
 }
 
+// Get month-added items from AsyncStorage
+export const getMonthAdded = async (): Promise<StoredScheduleItem[]> => {
+  const stored = await AsyncStorage.getItem(STORAGE_KEYS.MONTH_SCHEDULE)
+  return stored ? JSON.parse(stored) : []
+}
+
+// Generate base month schedule
+export const getMonthSchedule = (
+  firstResupply: Date,
+  firstInjection: Date,
+  month: number,
+  year: number
+): ScheduleItem[] => {
+  const items: ScheduleItem[] = []
+
+  const endDate = new Date(year, month + 1, 0) // last day of month
+
