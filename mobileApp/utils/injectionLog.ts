@@ -15,3 +15,11 @@ export type ScheduleItem = {
   type: 'injection' | 'resupply'
   done?: boolean
 }
+
+// Stored schedule item (for AsyncStorage) — dates are strings
+export type StoredScheduleItem = {
+  id: string
+  date: string
+  type: 'injection' | 'resupply'
+  done?: boolean
+}
