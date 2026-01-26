@@ -76,3 +76,16 @@ export const getMonthSchedule = (
 
   const endDate = new Date(year, month + 1, 0) // last day of month
 
+  // Resupplies every 28 days
+  let resupply = new Date(firstResupply)
+  while (resupply <= endDate) {
+    if (resupply.getMonth() === month && resupply.getFullYear() === year) {
+      items.push({
+        id: nanoid(),
+        date: new Date(resupply),
+        type: 'resupply',
+      })
+    }
+    resupply.setDate(resupply.getDate() + 28)
+  }
+
