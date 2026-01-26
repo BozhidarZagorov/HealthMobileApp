@@ -89,3 +89,18 @@ export const getMonthSchedule = (
     resupply.setDate(resupply.getDate() + 28)
   }
 
+  // Injections every 14 days
+  let injection = new Date(firstInjection)
+  while (injection <= endDate) {
+    if (injection.getMonth() === month && injection.getFullYear() === year) {
+      items.push({
+        id: nanoid(),
+        date: new Date(injection),
+        type: 'injection',
+      })
+    }
+    injection.setDate(injection.getDate() + 14)
+  }
+
+  return items.sort((a, b) => a.date.getTime() - b.date.getTime())
+}
