@@ -69,9 +69,9 @@ export default function HomeScreen() {
 
   generateCalendar(resupply, injectionDate)
 
-  // ✅ Add the first resupply + first injection to month schedule
+  //  Add the first resupply + first injection to month schedule
   await addInjectionToMonth({ date: resupply, type: 'resupply' })
-  await addInjectionToMonth({ date: injectionDate, type: 'injection' })
+  // await addInjectionToMonth({ date: injectionDate, type: 'injection' })
 }
 
   const saveInjectionAndGenerate = async (injection: Date) => {
@@ -80,7 +80,7 @@ export default function HomeScreen() {
 
   if (firstResupply) generateCalendar(firstResupply, injection)
 
-  // ✅ Add this injection to month schedule
+  //  Add this injection to month schedule
   await addInjectionToMonth({ date: injection, type: 'injection' })
 }
 
