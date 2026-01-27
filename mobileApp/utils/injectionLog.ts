@@ -8,6 +8,8 @@ export const STORAGE_KEYS = {
   INJECTION: 'first_injection_date',
 }
 
+export const normalizeDate = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate())
+
 // Schedule item used in memory
 export type ScheduleItem = {
   id: string
