@@ -113,7 +113,9 @@ export default function HomeScreen() {
       'Add this injection to this month?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Done', onPress: () => addInjectionToLog({ date, type: 'injection' }) },
+        // { text: 'Done', onPress: () => addInjectionToMonth({ date, type: 'injection' }) },
+        { text: 'Done'},
+
       ]
     )
   }

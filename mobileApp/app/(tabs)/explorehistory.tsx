@@ -14,16 +14,23 @@ export default function HistoryScreen() {
   const [history, setHistory] = useState<HistoryItem[]>([])
 
   const loadHistory = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEYS.INJECTION_LOG)
-      if (stored) {
-        const parsed: StoredScheduleItem[] = JSON.parse(stored)
-        setHistory(parsed.map(item => ({ ...item, id: item.id ?? nanoid() })))
-      }
-    } catch (error) {
-      console.log('Failed to load history', error)
-    }
+  try {
+    const stored = await AsyncStorage.getItem(STORAGE_KEYS.INJECTION_LOG)
+    if (!stored) return
+
+    const parsed: StoredScheduleItem[] = JSON.parse(stored)
+
+    setHistory(
+      parsed.map(item => ({
+        ...item,
+        id: item.id, // trust storage
+      }))
+    )
+  } catch (error) {
+    console.log('Failed to load history', error)
   }
+}
+
 
   useFocusEffect(useCallback(() => {
     loadHistory()
