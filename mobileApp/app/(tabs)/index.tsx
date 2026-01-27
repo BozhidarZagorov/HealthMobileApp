@@ -85,40 +85,64 @@ export default function HomeScreen() {
 }
 
 
-  const onDateChange = async (_: any, selectedDate?: Date) => {
+  const onDateChange = (event: any, selectedDate?: Date) => {
+  // Android cancel
+  if (Platform.OS === 'android' && event.type === 'dismissed') {
     setShowPicker(null)
-    if (!selectedDate) return
-    if (showPicker === 'resupply') saveResupplyAndGenerate(selectedDate)
-    if (showPicker === 'injection') saveInjectionAndGenerate(selectedDate)
+    return
   }
+
+  if (!selectedDate) {
+    setShowPicker(null)
+    return
+  }
+
+  setShowPicker(null)
+
+  if (showPicker === 'resupply') {
+    saveResupplyAndGenerate(selectedDate)
+  }
+
+  if (showPicker === 'injection') {
+    saveInjectionAndGenerate(selectedDate)
+  }
+}
+
 
   const onDayPress = async (day: any) => {
-    const date = new Date(day.dateString)
+  const date = new Date(day.dateString)
 
-    if (showPicker === 'resupply') {
-      saveResupplyAndGenerate(date)
-      return
-    }
-    if (showPicker === 'injection') {
-      saveInjectionAndGenerate(date)
-      return
-    }
-
-    const isInjectionDay = markedDates[day.dateString]?.dots?.some(d => d.key === 'injection')
-    if (!isInjectionDay) return
-
-    await addInjectionToMonth({ date, type: 'injection' })
-    Alert.alert(
-      'Injection',
-      'Add this injection to this month?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        // { text: 'Done', onPress: () => addInjectionToMonth({ date, type: 'injection' }) },
-        { text: 'Done'},
-
-      ]
-    )
+  if (showPicker === 'resupply') {
+    saveResupplyAndGenerate(date)
+    return
   }
+
+  if (showPicker === 'injection') {
+    saveInjectionAndGenerate(date)
+    return
+  }
+
+  const isInjectionDay = markedDates[day.dateString]?.dots?.some(
+    d => d.key === 'injection'
+  )
+
+  if (!isInjectionDay) return
+
+  Alert.alert(
+    'Injection',
+    'Add this injection to this month?',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Done',
+        onPress: async () => {
+          await addInjectionToMonth({ date, type: 'injection' })
+        },
+      },
+    ]
+  )
+}
+
 
   return (
     <View style={{ flex: 1, backgroundColor: '#fff', padding: 16, marginTop: 50 }}>
