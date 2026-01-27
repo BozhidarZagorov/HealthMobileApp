@@ -4,7 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { Calendar } from 'react-native-calendars'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import 'react-native-get-random-values'
-import { addInjectionToLog, addInjectionToMonth, STORAGE_KEYS, StoredScheduleItem } from '../../utils/injectionLog'
+import { normalizeDate, addInjectionToMonth, STORAGE_KEYS, StoredScheduleItem } from '../../utils/injectionLog'
 
 type MarkedDates = {
   [date: string]: { marked: boolean; dots: { key: string; color: string }[] }
@@ -59,30 +59,98 @@ export default function HomeScreen() {
     setMarkedDates(marks)
   }
 
-  const saveResupplyAndGenerate = async (resupply: Date) => {
+ const saveResupplyAndGenerate = async (resupply: Date) => {
   setFirstResupply(resupply)
-  await AsyncStorage.setItem(STORAGE_KEYS.RESUPPLY, resupply.toISOString())
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.RESUPPLY,
+    resupply.toISOString()
+  )
 
-  const injectionDate = firstInjection ?? new Date(resupply.getTime() + 14 * 24 * 60 * 60 * 1000)
-  setFirstInjection(injectionDate)
-  await AsyncStorage.setItem(STORAGE_KEYS.INJECTION, injectionDate.toISOString())
+  // Generate calendar dots (only if injection exists)
+  if (firstInjection) {
+    generateCalendar(resupply, firstInjection)
+  }
 
-  generateCalendar(resupply, injectionDate)
+  // Add ALL resupplies for this month (every 28 days)
+  const month = resupply.getMonth()
+  const year = resupply.getFullYear()
+  const endOfMonth = new Date(year, month + 1, 0)
 
-  //  Add the first resupply + first injection to month schedule
-  await addInjectionToMonth({ date: resupply, type: 'resupply' })
-  // await addInjectionToMonth({ date: injectionDate, type: 'injection' })
+  const stored = await AsyncStorage.getItem(STORAGE_KEYS.MONTH_SCHEDULE)
+  const existing: StoredScheduleItem[] = stored ? JSON.parse(stored) : []
+
+  let current = normalizeDate(resupply)
+
+  while (current <= endOfMonth) {
+    if (
+      current.getMonth() === month &&
+      current.getFullYear() === year
+    ) {
+      const exists = existing.some(
+        i =>
+          i.type === 'resupply' &&
+          i.date.slice(0, 10) === current.toISOString().slice(0, 10)
+      )
+
+      if (!exists) {
+        await addInjectionToMonth({
+          date: normalizeDate(current),
+          type: 'resupply',
+        })
+      }
+    }
+
+    current.setDate(current.getDate() + 28)
+  }
 }
+
 
   const saveInjectionAndGenerate = async (injection: Date) => {
   setFirstInjection(injection)
-  await AsyncStorage.setItem(STORAGE_KEYS.INJECTION, injection.toISOString())
+  await AsyncStorage.setItem(
+    STORAGE_KEYS.INJECTION,
+    injection.toISOString()
+  )
 
-  if (firstResupply) generateCalendar(firstResupply, injection)
+  // Generate calendar dots
+  if (firstResupply) {
+    generateCalendar(firstResupply, injection)
+  }
 
-  //  Add this injection to month schedule
-  await addInjectionToMonth({ date: injection, type: 'injection' })
+  // Add ALL injections for this month
+  const month = injection.getMonth()
+  const year = injection.getFullYear()
+
+  const endOfMonth = new Date(year, month + 1, 0)
+
+  const stored = await AsyncStorage.getItem(STORAGE_KEYS.MONTH_SCHEDULE)
+  const existing: StoredScheduleItem[] = stored ? JSON.parse(stored) : []
+
+  let current = normalizeDate(injection)
+
+  while (current <= endOfMonth) {
+    if (
+      current.getMonth() === month &&
+      current.getFullYear() === year
+    ) {
+      const exists = existing.some(
+        i =>
+          i.type === 'injection' &&
+          i.date.slice(0, 10) === current.toISOString().slice(0, 10)
+      )
+
+      if (!exists) {
+        await addInjectionToMonth({
+          date: normalizeDate(current),
+          type: 'injection',
+        })
+      }
+    }
+
+    current.setDate(current.getDate() + 14)
+  }
 }
+
 
 
   const onDateChange = (event: any, selectedDate?: Date) => {
@@ -110,7 +178,7 @@ export default function HomeScreen() {
 
 
   const onDayPress = async (day: any) => {
-  const date = new Date(day.dateString)
+  const date = normalizeDate(day.dateString)
 
   if (showPicker === 'resupply') {
     saveResupplyAndGenerate(date)
