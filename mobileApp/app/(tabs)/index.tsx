@@ -5,6 +5,7 @@ import { Calendar } from 'react-native-calendars'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import 'react-native-get-random-values'
 import { normalizeDate, addInjectionToMonth, STORAGE_KEYS, StoredScheduleItem } from '../../utils/injectionLog'
+import {scheduleInjectionNotifications} from '../../utils/scheduleNotifications'
 
 type MarkedDates = {
   [date: string]: { marked: boolean; dots: { key: string; color: string }[] }
@@ -97,6 +98,7 @@ export default function HomeScreen() {
           date: normalizeDate(current),
           type: 'resupply',
         })
+        await scheduleInjectionNotifications(normalizeDate(current))
       }
     }
 
@@ -144,6 +146,7 @@ export default function HomeScreen() {
           date: normalizeDate(current),
           type: 'injection',
         })
+        await scheduleInjectionNotifications(normalizeDate(current))
       }
     }
 
