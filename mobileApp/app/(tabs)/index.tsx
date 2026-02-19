@@ -157,31 +157,30 @@ export default function HomeScreen() {
 
 
   const onDateChange = (event: any, selectedDate?: Date) => {
-  // Android cancel
-  if (Platform.OS === 'android' && event.type === 'dismissed') {
+    // Android cancel
+    if (Platform.OS === 'android' && event.type === 'dismissed') {
+      setShowPicker(null)
+      return
+    }
+
+    if (!selectedDate) {
+      setShowPicker(null)
+      return
+    }
+
     setShowPicker(null)
-    return
+
+    if (showPicker === 'resupply') {
+      saveResupplyAndGenerate(selectedDate)
+    }
+
+    if (showPicker === 'injection') {
+      saveInjectionAndGenerate(selectedDate)
+    }
   }
-
-  if (!selectedDate) {
-    setShowPicker(null)
-    return
-  }
-
-  setShowPicker(null)
-
-  if (showPicker === 'resupply') {
-    saveResupplyAndGenerate(selectedDate)
-  }
-
-  if (showPicker === 'injection') {
-    saveInjectionAndGenerate(selectedDate)
-  }
-}
-
 
   const onDayPress = async (day: any) => {
-  const date = normalizeDate(day.dateString)
+    const date = normalizeDate(new Date(day.dateString))
 
   if (showPicker === 'resupply') {
     saveResupplyAndGenerate(date)
