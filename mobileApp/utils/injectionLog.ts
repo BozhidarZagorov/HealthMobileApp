@@ -67,6 +67,19 @@ export const getMonthAdded = async (): Promise<StoredScheduleItem[]> => {
   return stored ? JSON.parse(stored) : []
 }
 
+// Get completed items for a month from history (to avoid re-adding when syncing)
+export const getCompletedForMonth = async (
+  month: number,
+  year: number
+): Promise<StoredScheduleItem[]> => {
+  const stored = await AsyncStorage.getItem(STORAGE_KEYS.INJECTION_LOG)
+  const all: StoredScheduleItem[] = stored ? JSON.parse(stored) : []
+  return all.filter(item => {
+    const d = new Date(item.date)
+    return d.getMonth() === month && d.getFullYear() === year
+  })
+}
+
 // Generate base month schedule
 export const getMonthSchedule = (
   firstResupply: Date,
